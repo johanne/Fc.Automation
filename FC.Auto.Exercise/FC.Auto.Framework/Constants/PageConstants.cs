@@ -10,4 +10,5 @@ namespace FC.Auto.Framework.Constants
     {
         public const double PageWaitDefaultMillis = 1000;
     }
+    
 }

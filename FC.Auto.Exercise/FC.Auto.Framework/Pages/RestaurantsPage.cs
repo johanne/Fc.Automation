@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Support.PageObjects;
 using OpenQA.Selenium.Support.UI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FC.Auto.Framework.Pages
 {
@@ -17,8 +15,20 @@ namespace FC.Auto.Framework.Pages
         private IWebElement _filterList;
         [FindsBy(How = How.CssSelector, Using = "div[class='cuisines'] > ul[class='filter__list']")]
         private IWebElement _cuisineList;
+        [FindsBy(How = How.CssSelector, Using = "select[name='sort']")]
+        private IWebElement _filterSort;
 
-        
+        private By _restaurantItem = By.CssSelector("article[class='vendor list js-vendor-list-vendor-panel']");
+
+        private readonly Dictionary<SortOptions, string> _sortOptionsDictionary = new Dictionary<SortOptions, string>()
+        {
+            {SortOptions.DeliveryFee, "Deliery fee" },
+            {SortOptions.FastestDelivery, "Fastest delivery" },
+            {SortOptions.MinimumOrderValue, "Minimum order value" },
+            {SortOptions.Ratings, "Ratings" },
+            {SortOptions.Relevance, "Relevance" },
+
+        };
 
         public RestaurantsPage(IWebDriver driver) : base(driver)
         {
@@ -26,14 +36,41 @@ namespace FC.Auto.Framework.Pages
 
         public RestaurantsPage(IWebDriver driver, double waitTimeMillis) : base(driver, waitTimeMillis)
         {
+
         }
 
-        public void SelectFilterByName(string filterName)
+        public void SelectTopResult()
         {
+            var items = _restaurantList.FindElements(_restaurantItem);
+
+            if (items.Count == 0)
+            {
+                throw new IndexOutOfRangeException("No restaurants were found for the selected criteria");
+            }
+
+            items.First().Click();
+        }
+
+        public void SelectFiltersByName(params string[] filterNames)
+        {
+            var elems = _filterList.FindElements(By.CssSelector("li[class='filter__list__item']"));
             var fact = new ListItemFactory(_driver, _filterList);
             var listItems = fact.GetListItems();
 
+            foreach (var filter in filterNames)
+            {
+                var selected = listItems.FirstOrDefault(x => x.Label.Contains(filter));
+                selected.SetSelected();
+                WaitForPageToLoad();
+            }
+        }
 
+        public void SortResults(SortOptions option)
+        {
+            _filterSort.Click();
+            var selectOptions = new SelectElement(_filterSort);
+            selectOptions.SelectByText(_sortOptionsDictionary[option]);
+            WaitForPageToLoad();
         }
 
         protected override string _baseUrl
@@ -49,11 +86,21 @@ namespace FC.Auto.Framework.Pages
             _wait.Until(ExpectedConditions.ElementToBeClickable(_restaurantList));
         }
 
+        public enum SortOptions
+        {
+            Relevance,
+            Ratings,
+            MinimumOrderValue,
+            DeliveryFee,
+            FastestDelivery,
+        }
         private class ListItemFactory
         {
             private IWebElement _anchor;
             private IWebDriver _driver;
-            private By _listItems = By.CssSelector("li[class=;filter__list__item']");
+            private By _listItems = By.CssSelector("li[class='filter__list__item']");
+            public readonly By CheckBoxBy = By.CssSelector("input[type='checkbox']");
+            public readonly By LabelBy = By.TagName("label");
 
             /// <summary>
             /// Hide default constructor
@@ -70,7 +117,11 @@ namespace FC.Auto.Framework.Pages
             public List<ListItem> GetListItems()
             {
                 var elements = _anchor.FindElements(_listItems);
-                return elements.Select(x => new ListItem(_driver)).ToList();
+                return elements.Select(x => 
+                    new ListItem(_driver){
+                        CheckBox = x.FindElement(CheckBoxBy),
+                        LabelElement = x.FindElement(LabelBy),
+                }).ToList();
             }
         }
 
@@ -78,13 +129,9 @@ namespace FC.Auto.Framework.Pages
         {
             private IWebDriver _driver;
             private WebDriverWait _wait;
-            [FindsBy(How = How.CssSelector, Using = "input[type = 'checkbox']")]
             public IWebElement CheckBox;
-            [FindsBy(How = How.CssSelector, Using = "label[type='required']")]
-            public IWebElement Label;
-
-            public readonly By CheckBoxBy = By.CssSelector("input[type = 'checkbox']");
-            public readonly By LabelBy = By.CssSelector("label[type='required']");
+            public string Label => LabelElement.Text;
+            public IWebElement LabelElement;
             public ListItem(IWebDriver driver) : this(driver, 5000)
             {
             }
@@ -93,19 +140,18 @@ namespace FC.Auto.Framework.Pages
             {
                 _driver = driver;
                 _wait = new WebDriverWait(_driver, TimeSpan.FromMilliseconds(waitTimeMillis));
-                PageFactory.InitElements(_driver, this);
             }
 
             public void SetSelected()
             {
                 if (!CheckBox.Selected)
                 {
-                    CheckBox.Click();
+                    LabelElement.Click();
                 }
             }
         }
     }
 
-    
+
 
 }

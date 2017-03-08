@@ -6,6 +6,8 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Configuration;
+using static FC.Auto.Framework.Pages.RestaurantsPage;
+
 namespace Fc.Auto.Exercise
 {
     /// <summary>
@@ -18,10 +20,12 @@ namespace Fc.Auto.Exercise
         private IWebDriver _webDriver;
         private HomePage _homePage;
         private RestaurantsPage _restaurants;
+        private OrderPage _orders;
         private double _waitTime;
         private string _city;
         private string _street;
-        private string _filters;
+        private string _filter;
+        private string _sortOption;
 
         public FoodPanda()
         {
@@ -32,6 +36,8 @@ namespace Fc.Auto.Exercise
         private void InitializeComponents()
         {
             _homePage = ClassLoader.Instance.CreateOrLocate<HomePage>(typeof(HomePage), _webDriver, _waitTime);
+            _restaurants = ClassLoader.Instance.CreateOrLocate<RestaurantsPage>(typeof(RestaurantsPage), _webDriver, _waitTime);
+            _orders = ClassLoader.Instance.CreateOrLocate<OrderPage>(typeof(OrderPage), _webDriver, _waitTime);
         }
 
         public bool Run()
@@ -42,10 +48,12 @@ namespace Fc.Auto.Exercise
                 NavigateToHomePage();
                 SetLocation();
                 Search();
-
+                SetFilterAndSelectARestaurant();
+                AddMenuItems();
             }
-            catch
+            catch(Exception ex)
             {
+                _logger.LogE($@"Error in running the steps: {ex.Message}");
                 return false;
             }
             return true;
@@ -74,9 +82,29 @@ namespace Fc.Auto.Exercise
             _homePage.WaitForSpinnerToDisappear();
 
             // wait for the restaurant results page to be shown
+            _restaurants.WaitForPageToLoad();
+            _logger.Log($@"Restaurant Page Loaded.");
         }
 
-        private void SetFilters()
+        private void SetFilterAndSelectARestaurant()
+        {
+            _logger.Log($@"Setting filter: {_filter}");
+            _restaurants.SelectFiltersByName(_filter);
+
+            SortOptions sortOption;
+            if (!string.IsNullOrEmpty(_sortOption) && Enum.TryParse(_sortOption, out sortOption))
+            {
+                _logger.Log($@"Sorting via: {_sortOption}");
+                _restaurants.SortResults(sortOption);
+            }
+
+            _restaurants.SelectTopResult();
+            _orders.WaitForPageToLoad();
+            _logger.Log($@"Order Page Loaded.");
+
+        }
+
+        private void AddMenuItems()
         {
 
         }
@@ -86,6 +114,8 @@ namespace Fc.Auto.Exercise
             // Load variable values
             _city = ConfigurationManager.AppSettings["city"];
             _street = ConfigurationManager.AppSettings["street"];
+            _filter = ConfigurationManager.AppSettings["filter"];
+            _sortOption = ConfigurationManager.AppSettings["sortOption"];
             // Load the webdriver type
             var type = ConfigurationManager.AppSettings["driver"];
             DriverType resultingType;
@@ -103,27 +133,6 @@ namespace Fc.Auto.Exercise
             }
 
             _logger = ClassLoader.Instance.CreateOrLocate<ILogger>(typeof(Logger));
-            // username
-            // password,
-            // wait time,
-            // receiver address
-            // receiver to
-            //
-
-            /*
-            // now load the factory to be used by the application
-            _builder = ClassLoader.LoadClientBuilder(resultingType);
-            _requestFactory = ClassLoader.LoadType<IRequestObjectFactory>();
-
-            // try to set the Timeout if the config states the value
-            if (!long.TryParse(ConfigurationManager.AppSettings["Timeout"], out _userDefinedTimeout))
-            {
-                _userDefinedTimeout = DefaultTimeout;
-            }
-
-            _baseAddress = ConfigurationManager.AppSettings["BaseAddress"];
-            _initializeCookie = bool.TryParse(ConfigurationManager.AppSettings["InitializeCookie"], out _initializeCookie) & _initializeCookie;
-            */
         }
 
         #region IDisposable Support
