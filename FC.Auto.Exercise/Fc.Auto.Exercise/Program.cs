@@ -45,7 +45,8 @@ namespace Fc.Auto.Exercise
             }
 
             _logger.Log($@"Run completed. Failure statistics: {failCount}");
-            Console.WriteLine("Press any key to end the program...");
+
+            System.Threading.Thread.Sleep(1000);
         }
 
         public static void InitializeComponents()
