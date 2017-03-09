@@ -48,6 +48,7 @@ The next lines are for configuring the target area - these should exist in the w
     add key="sortOption" value="FastestDelivery"
 
 The next lines are for the email configuration
+
     add key="senderName" value="automation"
     add key="senderAddress" value="fc_jd_auto@yopmail.com"
     add key="senderPassword" value=""
@@ -57,5 +58,7 @@ The next lines are for the email configuration
     add key="port" value="25"
 
 Lastly, the following line is the configuration for the csv file:
+
     add key ="outputLocation" value=""
+
 If there is no setting in the output location, it will be placed in the users temp directory -> %Temp%;
