@@ -2,9 +2,10 @@
 For the exercise of FC.
 
 Known Issues:
-	There's a problem with the mailsending module, i'm not sure if it's the smtp.
-	If the connection is extremely laggy, try increasing the wait in the configuration file (in ms)
-	Pre-orders - Failure to accommodate an order results in the app to close.
+	
+	1. There's a problem with the mailsending module, i'm not sure if it's the smtp.
+	2. If the connection is extremely laggy, try increasing the wait in the configuration file (in ms)
+	3. Pre-orders - Failure to accommodate an order results in the app to close.
 
 
 Prerequisites:
