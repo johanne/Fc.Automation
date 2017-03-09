@@ -8,7 +8,7 @@ namespace FC.Auto.Framework.Constants
 {
     public static class PageConstants
     {
-        public const double PageWaitDefaultMillis = 1000;
+        public const double PageWaitDefaultMillis = 5000;
     }
     
 }

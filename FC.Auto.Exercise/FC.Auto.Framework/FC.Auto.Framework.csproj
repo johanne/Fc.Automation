@@ -54,9 +54,12 @@
     <Compile Include="Constants\DriverType.cs" />
     <Compile Include="Constants\PageConstants.cs" />
     <Compile Include="Interface\IPage.cs" />
+    <Compile Include="Interface\IPageElement.cs" />
     <Compile Include="Pages\HomePage.cs" />
+    <Compile Include="Pages\LoginPage.cs" />
     <Compile Include="Pages\OrderPage.cs" />
     <Compile Include="Pages\PageBase.cs" />
+    <Compile Include="Pages\PageElementBase.cs" />
     <Compile Include="Pages\RestaurantsPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

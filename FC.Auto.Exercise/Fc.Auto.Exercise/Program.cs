@@ -1,6 +1,7 @@
 ﻿using Fc.Auto.Common.Foundation;
 using Fc.Auto.Common.Interface;
-
+using System;
+using System.Configuration;
 
 namespace Fc.Auto.Exercise
 {
@@ -23,8 +24,8 @@ namespace Fc.Auto.Exercise
             {
                 _logger.Log("Preparing to send email notification...");
                 //mail here
-                var mailer = new object();
-                var emailSent = false;
+                
+                var emailSent = SendMail();
 
                 if (emailSent)
                 {
@@ -44,7 +45,7 @@ namespace Fc.Auto.Exercise
             }
 
             _logger.Log($@"Run completed. Failure statistics: {failCount}");
-
+            Console.WriteLine("Press any key to end the program...");
         }
 
         public static void InitializeComponents()
@@ -53,6 +54,30 @@ namespace Fc.Auto.Exercise
             _logger = ClassLoader.Instance.CreateOrLocate<ILogger>(typeof(Logger));
             
 
+        }
+
+        public static bool SendMail()
+        {
+            var senderName = ConfigurationManager.AppSettings["senderName"];
+            var senderAddress = ConfigurationManager.AppSettings["senderAddress"];
+            var senderPassword = ConfigurationManager.AppSettings["senderPassword"];
+            var receiverName = ConfigurationManager.AppSettings["receiverName"];
+            var receiverAddress = ConfigurationManager.AppSettings["receiverAddress"];
+            var host = ConfigurationManager.AppSettings["host"];
+            var port = int.Parse(ConfigurationManager.AppSettings["port"]);
+            var messageBuilder = MailMessageBuilder.Instance;
+            var sender =
+                messageBuilder.AddSender(senderAddress, senderName)
+                    .AddToAddress(receiverAddress, receiverName)
+                    .AddSubject($@"FoodPanda script - {DateTime.Now.ToShortTimeString()}")
+                    .AddBody($@"Script was successfully run. Order is ready for checkout");
+            using (var mail = messageBuilder.Build())
+            {
+                var mailer = new MessageService();
+                mailer.SetHost(host, port);
+                mailer.SetCredentials(senderAddress, senderPassword, false);
+                return mailer.TrySendMail(mail);
+            }
         }
     }
 }

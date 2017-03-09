@@ -39,6 +39,22 @@ namespace FC.Auto.Framework.Pages
 
         }
 
+        public void SelectResult(int index)
+        {
+            var items = _restaurantList.FindElements(_restaurantItem);
+
+            if (items.Count == 0)
+            {
+                throw new IndexOutOfRangeException("No restaurants were found for the selected criteria");
+            }
+
+            index = Math.Max(0, index);
+            index = Math.Min(index, items.Count - 1);
+
+            items.ElementAt(index).Click();
+
+        }
+
         public void SelectTopResult()
         {
             var items = _restaurantList.FindElements(_restaurantItem);
@@ -61,7 +77,7 @@ namespace FC.Auto.Framework.Pages
             {
                 var selected = listItems.FirstOrDefault(x => x.Label.Contains(filter));
                 selected.SetSelected();
-                WaitForPageToLoad();
+                WaitForElementToLoad();
             }
         }
 
@@ -70,7 +86,7 @@ namespace FC.Auto.Framework.Pages
             _filterSort.Click();
             var selectOptions = new SelectElement(_filterSort);
             selectOptions.SelectByText(_sortOptionsDictionary[option]);
-            WaitForPageToLoad();
+            WaitForElementToLoad();
         }
 
         protected override string _baseUrl
@@ -81,7 +97,7 @@ namespace FC.Auto.Framework.Pages
             }
         }
 
-        public override void WaitForPageToLoad()
+        public override void WaitForElementToLoad()
         {
             _wait.Until(ExpectedConditions.ElementToBeClickable(_restaurantList));
         }

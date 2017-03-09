@@ -47,6 +47,7 @@
     <Compile Include="Foundation\ClassLoader.cs" />
     <Compile Include="Foundation\Logger.cs" />
     <Compile Include="Foundation\MailMessageBuilder.cs" />
+    <Compile Include="Foundation\MessageService.cs" />
     <Compile Include="Interface\IClassLoader.cs" />
     <Compile Include="Interface\ILogger.cs" />
     <Compile Include="Interface\IMailMessageBuilder.cs" />
