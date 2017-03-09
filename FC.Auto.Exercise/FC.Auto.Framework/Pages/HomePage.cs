@@ -38,7 +38,7 @@ namespace FC.Auto.Framework.Pages
             }
         }
 
-        public override void WaitForPageToLoad()
+        public override void WaitForElementToLoad()
         {
             _wait.Until(ExpectedConditions.ElementToBeClickable(_submitButton));
         }

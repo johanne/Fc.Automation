@@ -3,7 +3,6 @@
     public interface IPage
     {
         void Refresh();
-        void WaitForPageToLoad();
 
         void Navigate();
     }
